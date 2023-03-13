@@ -1,11 +1,33 @@
 # react-native-meta-share
 
-meta platform's share
+Share Images or Video to Facebook/Instagram
 
 ## Installation
 
+With npm:
+
 ```sh
-npm install react-native-meta-share
+> npm install @react-native-async-storage/async-storage
+```
+
+With Yarn:
+
+```sh
+> yarn add @react-native-async-storage/async-storage
+```
+
+## Link
+
+#### Android & iOS
+
+Requires **React Native 0.60+**
+
+[CLI autolink feature](https://github.com/react-native-community/cli/blob/main/docs/autolinking.md) links the module while building the app.
+
+On iOS, use CocoaPods to add the native react-native-meta-share to your project:
+
+```sh
+> npx pod-install
 ```
 
 ## Usage
