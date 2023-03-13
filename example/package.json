@@ -6,7 +6,8 @@
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "start": "react-native start",
-    "pods": "pod-install --quiet"
+    "pods": "pod-install --quiet",
+    "preinstall": "npm install --package-lock-only --ignore-scripts && npx npm-force-resolutions"
   },
   "dependencies": {
     "react": "18.2.0",
@@ -18,5 +19,9 @@
     "@babel/runtime": "^7.20.0",
     "metro-react-native-babel-preset": "0.73.8",
     "babel-plugin-module-resolver": "^4.1.0"
+  },
+  "resolutions": {
+    "@types/react": "^18.0.26",
+    "@types/react-dom": "^18.0.9"
   }
 }

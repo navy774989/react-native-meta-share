@@ -17,6 +17,30 @@ const MetaShare = NativeModules.MetaShare
       }
     );
 
-export function multiply(a: number, b: number): Promise<number> {
-  return MetaShare.multiply(a, b);
+export function sharePhotosToFacebook(imageURIs: string[]): Promise<string[]> {
+  return MetaShare.sharePhotos(imageURIs);
+}
+
+export function shareVideoToFacebook(videoURI: string): Promise<string[]> {
+  return MetaShare.shareVideo(videoURI);
+}
+
+export function shareVideoToInstagram(videoURI: string): Promise<string[]> {
+  return MetaShare.shareVideoToInstagram(videoURI);
+}
+
+export function shareImageToInstagram(imageURI: string): Promise<string[]> {
+  return MetaShare.shareImageToInstagram(imageURI);
+}
+export function shareToInstagramStory(
+  appID: string,
+  data: {
+    backgroundImageAsset?: string;
+    stickerImageAsset?: string;
+    backgroundTopColor?: string;
+    backgroundBottomColor?: string;
+    backgroundVideoAsset?: string;
+  }
+): Promise<string[]> {
+  return MetaShare.shareToInstagramStory(appID, data);
 }

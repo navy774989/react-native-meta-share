@@ -1,18 +1,78 @@
 import * as React from 'react';
 
-import { StyleSheet, View, Text } from 'react-native';
-import { multiply } from 'react-native-meta-share';
+import { StyleSheet, View, Text, Pressable } from 'react-native';
+import {
+  sharePhotosToFacebook,
+  shareVideoToFacebook,
+  shareVideoToInstagram,
+  shareImageToInstagram,
+  shareToInstagramStory,
+} from 'react-native-meta-share';
 
 export default function App() {
-  const [result, setResult] = React.useState<number | undefined>();
-
-  React.useEffect(() => {
-    multiply(3, 7).then(setResult);
-  }, []);
-
   return (
     <View style={styles.container}>
-      <Text>Result: {result}</Text>
+      <Pressable
+        onPress={() => {
+          // sharePhotos([
+
+          //   'https://plus.unsplash.com/premium_photo-1671641798046-3ef40e6d2e0b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1064&q=80',
+          //   'https://images.unsplash.com/photo-1678379679866-0cb2d81cae9f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1940&q=80',
+          // ]);
+          shareToInstagramStory('747322446269342', {
+            // backgroundBottomColor:"#FFA500",
+            // backgroundTopColor:"#FF0000",
+            stickerImageAsset:
+              'https://images.unsplash.com/photo-1678379679866-0cb2d81cae9f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1940&q=80',
+            backgroundVideoAsset:
+              'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4',
+          });
+        }}
+        style={styles.box}
+      >
+        <Text>Share To Instagram Story</Text>
+      </Pressable>
+      <Pressable
+        onPress={() => {
+          sharePhotosToFacebook([
+            'https://plus.unsplash.com/premium_photo-1671641798046-3ef40e6d2e0b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1064&q=80',
+            'https://images.unsplash.com/photo-1678379679866-0cb2d81cae9f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1940&q=80',
+          ]);
+        }}
+        style={styles.box}
+      >
+        <Text>Share Photos To Facebook</Text>
+      </Pressable>
+      <Pressable
+        onPress={() => {
+          shareVideoToFacebook(
+            'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4'
+          );
+        }}
+        style={styles.box}
+      >
+        <Text>Share Video To Facebook</Text>
+      </Pressable>
+      <Pressable
+        onPress={() => {
+          shareVideoToInstagram(
+            'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4'
+          );
+        }}
+        style={styles.box}
+      >
+        <Text>Share Video To Instagram</Text>
+      </Pressable>
+      <Pressable
+        onPress={() => {
+          shareImageToInstagram(
+            'https://plus.unsplash.com/premium_photo-1671641798046-3ef40e6d2e0b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1064&q=80'
+          );
+        }}
+        style={styles.box}
+      >
+        <Text>Share Image To Instagram</Text>
+      </Pressable>
     </View>
   );
 }
@@ -24,8 +84,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   box: {
-    width: 60,
-    height: 60,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    backgroundColor: 'white',
     marginVertical: 20,
   },
 });
