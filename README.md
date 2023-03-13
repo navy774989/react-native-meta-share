@@ -1,6 +1,6 @@
 # react-native-meta-share
 
-meta platform's share 
+meta platform's share
 
 ## Installation
 
@@ -11,11 +11,30 @@ npm install react-native-meta-share
 ## Usage
 
 ```js
-import { multiply } from 'react-native-meta-share';
+import {
+  sharePhotosToFacebook,
+  shareVideoToFacebook,
+  shareVideoToInstagram,
+  shareImageToInstagram,
+  shareToInstagramStory,
+} from 'react-native-meta-share';
 
 // ...
 
-const result = await multiply(3, 7);
+const result = await shareToInstagramStory('appid', {
+  backgroundBottomColor: '#FFA500',
+  backgroundTopColor: '#FF0000',
+  stickerImageAsset: 'image uri',
+  backgroundVideoAsset: 'video uri',
+});
+
+const result = await sharePhotosToFacebook(['image1 uri', 'image2 uri']);
+
+const result = await shareVideoToFacebook('video uri');
+
+const result = await shareVideoToInstagram('video uri');
+
+const result = await shareImageToInstagram('image uri');
 ```
 
 ## Contributing
