@@ -74,8 +74,8 @@ class MetaShare: NSObject, SharingDelegate, UIImagePickerControllerDelegate, UIN
             switch result {
             case .success(let data):
                 let shareContent = ShareVideoContent()
-                let assetUrl = URL(string: "assets-library://asset/asset.mp4?id=\(data.localIdentifier)&ext=mp4")!
-                let videoAsset = ShareVideo(videoURL: assetUrl)
+                let videoAsset = ShareVideo(videoAsset: data)
+				
                 shareContent.video = videoAsset
                 let dialog = ShareDialog(
                     viewController: RCTPresentedViewController()!,
@@ -99,7 +99,7 @@ class MetaShare: NSObject, SharingDelegate, UIImagePickerControllerDelegate, UIN
         downloadVideoAndSaveToPhotosLibrary(from: videoURL) { result in
             switch result {
             case .success(let data):
-                let shareContent = ShareVideoContent()
+
                 let assetUrl = URL(string: "instagram://library?LocalIdentifier=" + data.localIdentifier)!
                 if UIApplication.shared.canOpenURL(assetUrl) {
                     UIApplication.shared.open(assetUrl, options: [:], completionHandler:nil)
@@ -112,7 +112,79 @@ class MetaShare: NSObject, SharingDelegate, UIImagePickerControllerDelegate, UIN
             }
         }
     }
-    
+	@objc(shareToFacebookReels:withVideoURI:withImageURI:withResolver:withRejecter:)
+	func shareToFacebookReels(appID:String,videoURI:String,imageURI:String?,resolve: @escaping RCTPromiseResolveBlock,  reject: @escaping RCTPromiseRejectBlock){
+		var pasteboardItems: [String: Any] = [:]
+		let downloadGroup = DispatchGroup()
+		let filePath = NSTemporaryDirectory().appending("temp_0.jpg")
+		
+		if(imageURI != "" && imageURI != nil ){
+			downloadGroup.enter()
+			downloadFile(url: URL(string: imageURI!)!, toFile: URL(string: filePath)!, completion:{ error in
+				if(error != nil){
+					reject("download fail",error?.localizedDescription,nil)
+					return
+				}
+				let backgroundImage = UIImage(contentsOfFile: filePath)
+				pasteboardItems["com.facebook.sharedSticker.stickerImage"] = backgroundImage?.pngData()
+				downloadGroup.leave()
+			})
+		}
+		if(videoURI != ""){
+			downloadGroup.enter()
+			downloadVideoAndSaveToPhotosLibrary(from: URL(string: videoURI)!) { result in
+				switch result {
+					case .success(let data):
+						
+						data.requestContentEditingInput(with: nil) { input, _ in
+							guard let input = input else {
+								reject("error","video error",nil)
+								return
+							}
+							guard let avAsset = input.audiovisualAsset else {
+								reject("error","avAsset error",nil)
+								return
+							}
+							
+							let exportSession = AVAssetExportSession(asset: avAsset, presetName: AVAssetExportPresetHighestQuality)!
+							exportSession.outputFileType = .mp4
+							
+							let tempFile = URL(fileURLWithPath: NSTemporaryDirectory() + UUID().uuidString + ".mp4")
+							exportSession.outputURL = tempFile
+							
+							exportSession.exportAsynchronously {
+								guard exportSession.status == .completed,
+									  let fileData = try? Data(contentsOf: tempFile) else {
+									reject("error","file data error",nil)
+									return
+								}
+								pasteboardItems["com.facebook.sharedSticker.backgroundVideo"] = fileData
+								downloadGroup.leave()
+								
+							}
+						}
+					case .failure(let error):
+						reject("error","error",error)
+						break
+							// Handle the error
+				}
+			}
+		}
+
+		downloadGroup.notify(queue: .main){
+			let pasteboardOptions = [UIPasteboard.OptionsKey.expirationDate: Date().addingTimeInterval(60 * 5)]
+			pasteboardItems["com.facebook.sharedSticker.appID"] = appID
+				// This call is iOS 10+, can use 'setItems' depending on what versions you support
+			UIPasteboard.general.setItems([pasteboardItems], options:
+											pasteboardOptions)
+			DispatchQueue.main.async {
+				UIApplication.shared.open(URL(string: "facebook-reels://share")!, options: [:], completionHandler: nil)
+				resolve("open")
+			}
+		}
+	
+	}
+	
     @objc(shareToInstagramStory:withData:withResolver:withRejecter:)
     func shareToInstagramStory(appID:String,data:NSDictionary,resolve: @escaping RCTPromiseResolveBlock,  reject: @escaping RCTPromiseRejectBlock){
         var pasteboardItems: [String: Any] = [:]

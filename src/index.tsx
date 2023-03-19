@@ -21,6 +21,14 @@ export function sharePhotosToFacebook(imageURIs: string[]): Promise<string[]> {
   return MetaShare.sharePhotos(imageURIs);
 }
 
+export function shareToFacebookReels(
+  appID: string,
+  videoURI: string = '',
+  imageURI?: string
+): Promise<string[]> {
+  return MetaShare.shareToFacebookReels(appID, videoURI, imageURI);
+}
+
 export function shareVideoToFacebook(videoURI: string): Promise<string[]> {
   return MetaShare.shareVideo(videoURI);
 }

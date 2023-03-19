@@ -7,6 +7,7 @@ import {
   shareVideoToInstagram,
   shareImageToInstagram,
   shareToInstagramStory,
+  shareToFacebookReels,
 } from 'react-native-meta-share';
 
 export default function App() {
@@ -31,6 +32,18 @@ export default function App() {
         style={styles.box}
       >
         <Text>Share To Instagram Story</Text>
+      </Pressable>
+      <Pressable
+        onPress={() => {
+          shareToFacebookReels(
+            '219376304',
+            'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4',
+            'https://images.unsplash.com/photo-1678379679866-0cb2d81cae9f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1940&q=80'
+          );
+        }}
+        style={styles.box}
+      >
+        <Text>Share To Facebook Reels</Text>
       </Pressable>
       <Pressable
         onPress={() => {

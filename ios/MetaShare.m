@@ -23,6 +23,12 @@ RCT_EXTERN_METHOD(shareToInstagramStory:(NSString)appID
                  withResolver:(RCTPromiseResolveBlock)resolve
                  withRejecter:(RCTPromiseRejectBlock)reject)
 
+RCT_EXTERN_METHOD(shareToFacebookReels:(NSString)appID
+				  withVideoURI:(NSString)videoURI
+				  withImageURI:(NSString)imageURI
+				  withResolver:(RCTPromiseResolveBlock)resolve
+				  withRejecter:(RCTPromiseRejectBlock)reject)
+
 + (BOOL)requiresMainQueueSetup
 {
   return NO;
