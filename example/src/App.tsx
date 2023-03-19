@@ -19,13 +19,13 @@ export default function App() {
           //   'https://plus.unsplash.com/premium_photo-1671641798046-3ef40e6d2e0b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1064&q=80',
           //   'https://images.unsplash.com/photo-1678379679866-0cb2d81cae9f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1940&q=80',
           // ]);
-          shareToInstagramStory('747322446269342', {
-            // backgroundBottomColor:"#FFA500",
-            // backgroundTopColor:"#FF0000",
+          shareToInstagramStory('219376304', {
             stickerImageAsset:
               'https://images.unsplash.com/photo-1678379679866-0cb2d81cae9f?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1940&q=80',
             backgroundVideoAsset:
               'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4',
+            // backgroundImageAsset:
+            //   'https://plus.unsplash.com/premium_photo-1671641798046-3ef40e6d2e0b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1064&q=80',
           });
         }}
         style={styles.box}

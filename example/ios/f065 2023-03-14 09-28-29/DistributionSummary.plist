@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>packageApp.ipa</key>
+	<array>
+		<dict>
+			<key>architectures</key>
+			<array>
+				<string>arm64</string>
+			</array>
+			<key>buildNumber</key>
+			<string>1</string>
+			<key>certificate</key>
+			<dict>
+				<key>SHA1</key>
+				<string>6C8556EE0752E600BEBFC68680CB126008CA09F5</string>
+				<key>dateExpires</key>
+				<string>24/6/2023</string>
+				<key>type</key>
+				<string>Cloud Managed Apple Distribution</string>
+			</dict>
+			<key>embeddedBinaries</key>
+			<array>
+				<dict>
+					<key>architectures</key>
+					<array>
+						<string>arm64</string>
+					</array>
+					<key>buildNumber</key>
+					<string>0.11.0</string>
+					<key>certificate</key>
+					<dict>
+						<key>SHA1</key>
+						<string>6C8556EE0752E600BEBFC68680CB126008CA09F5</string>
+						<key>dateExpires</key>
+						<string>24/6/2023</string>
+						<key>type</key>
+						<string>Cloud Managed Apple Distribution</string>
+					</dict>
+					<key>name</key>
+					<string>hermes.framework</string>
+					<key>team</key>
+					<dict>
+						<key>id</key>
+						<string>23DKZW6CRN</string>
+						<key>name</key>
+						<string>KUN-SING Lin</string>
+					</dict>
+					<key>versionNumber</key>
+					<string>0.11.0</string>
+				</dict>
+			</array>
+			<key>entitlements</key>
+			<dict>
+				<key>application-identifier</key>
+				<string>23DKZW6CRN.org.f065.com</string>
+				<key>com.apple.developer.team-identifier</key>
+				<string>23DKZW6CRN</string>
+				<key>get-task-allow</key>
+				<false/>
+			</dict>
+			<key>name</key>
+			<string>packageApp.app</string>
+			<key>profile</key>
+			<dict>
+				<key>UUID</key>
+				<string>c8885dfd-72d1-4b12-b55c-a9f2c7264018</string>
+				<key>dateExpires</key>
+				<string>24/6/2023</string>
+				<key>name</key>
+				<string>iOS Team Ad Hoc Provisioning Profile: org.f065.com</string>
+			</dict>
+			<key>team</key>
+			<dict>
+				<key>id</key>
+				<string>23DKZW6CRN</string>
+				<key>name</key>
+				<string>KUN-SING Lin</string>
+			</dict>
+			<key>versionNumber</key>
+			<string>1.6</string>
+		</dict>
+	</array>
+</dict>
+</plist>

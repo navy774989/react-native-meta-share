@@ -42,5 +42,6 @@ export function shareToInstagramStory(
     backgroundVideoAsset?: string;
   }
 ): Promise<string[]> {
+  console.log(data);
   return MetaShare.shareToInstagramStory(appID, data);
 }

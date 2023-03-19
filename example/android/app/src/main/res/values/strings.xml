@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">MetaShareExample</string>
+  <string name="facebook_app_id">747322446269342</string>
+  <string name="facebook_access_token">96d0e6d15d2b7bf7e1dc179df4798599</string>
+
 </resources>

@@ -30,6 +30,20 @@ On iOS, use CocoaPods to add the native react-native-meta-share to your project:
 > npx pod-install
 ```
 
+## Additional for iOS
+
+You should write LSApplicationQueriesSchemes in info.plist:
+
+```sh
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>fbapi</string>
+		<string>instagram</string>
+		<string>fb-messenger-share-api</string>
+		<string>instagram-stories</string>
+	</array>
+```
+
 ## Usage
 
 ```js
