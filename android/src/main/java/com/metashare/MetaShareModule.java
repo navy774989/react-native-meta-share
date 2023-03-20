@@ -101,6 +101,42 @@ public class MetaShareModule extends ReactContextBaseJavaModule implements Activ
   }
 
   @ReactMethod
+  public void shareToFacebookReels(String appID, String videoURI, String imageURI,Promise promise) {
+    String mediaPath = getReactApplicationContext().getCacheDir() + "/temp_1.jpg";
+    String mediaVideoPath = getReactApplicationContext().getCacheDir() + "/temp_1.mp4";
+    FileDownloader downloader = new FileDownloader();
+
+    downloader.setAllDownloadsDoneCallback(new FileDownloader.AllDownloadsDoneCallback() {
+      @Override
+      public void onAllDownloadsDone(List<Boolean> results) {
+        Intent intent = new Intent("com.facebook.reels.SHARE_TO_REEL");
+        intent.putExtra("com.facebook.platform.extra.APPLICATION_ID", appID);
+        File videoFile = new File(mediaVideoPath);
+        File imageFile = new File(mediaPath);
+        Uri imageFileUri = FileProvider.getUriForFile(getReactApplicationContext(), getReactApplicationContext().getPackageName() + ".fileprovider", imageFile);
+        intent.putExtra("interactive_asset_uri", imageFileUri);
+
+        Uri videoFileUri = FileProvider.getUriForFile(getReactApplicationContext(), getReactApplicationContext().getPackageName() + ".fileprovider", videoFile);
+        intent.setDataAndType(videoFileUri, "video/mp4");
+        getReactApplicationContext().grantUriPermission("com.facebook.katana", videoFileUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+
+        Activity activity = getCurrentActivity();
+        getCurrentActivity().grantUriPermission("com.facebook.katana", imageFileUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        if (activity.getPackageManager().resolveActivity(intent, 0) != null)
+        {
+          activity.startActivityForResult(intent, 0);
+          promise.resolve("opened");
+        }else{
+          promise.reject("error","error");
+        }
+      }
+    });
+    downloader.execute(videoURI,mediaVideoPath,imageURI,mediaPath);
+  }
+
+  @ReactMethod
   public void shareToInstagramStory(String appID, ReadableMap data, Promise promise) {
 
 
@@ -115,16 +151,16 @@ public class MetaShareModule extends ReactContextBaseJavaModule implements Activ
       public void onAllDownloadsDone(List<Boolean> results) {
         Intent intent = new Intent("com.instagram.share.ADD_TO_STORY");
         intent.putExtra("source_application", appID);
-        if(data.hasKey("backgroundBottomColor")){
-          intent.putExtra("bottom_background_color",  data.getString("backgroundBottomColor") != null ? data.getString("backgroundBottomColor"):"#FFA500" );
+        if (data.hasKey("backgroundBottomColor")) {
+          intent.putExtra("bottom_background_color", data.getString("backgroundBottomColor") != null ? data.getString("backgroundBottomColor") : "#FFA500");
         }
 
-        if(data.hasKey("backgroundTopColor")){
-          intent.putExtra("top_background_color", data.getString("backgroundTopColor") != null ? data.getString("backgroundTopColor"):"#FF0000");
+        if (data.hasKey("backgroundTopColor")) {
+          intent.putExtra("top_background_color", data.getString("backgroundTopColor") != null ? data.getString("backgroundTopColor") : "#FF0000");
         }
 
         intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        if( data.getString("backgroundImageAsset") != null){
+        if (data.getString("backgroundImageAsset") != null) {
 
           File media = new File(mediaPath2);
           Uri fileUri = FileProvider.getUriForFile(getReactApplicationContext(), getReactApplicationContext().getPackageName() + ".fileprovider", media);
@@ -132,7 +168,7 @@ public class MetaShareModule extends ReactContextBaseJavaModule implements Activ
           getCurrentActivity().grantUriPermission("com.instagram.android", fileUri,
             Intent.FLAG_GRANT_READ_URI_PERMISSION);
         }
-        if( data.getString("backgroundVideoAsset") != null){
+        if (data.getString("backgroundVideoAsset") != null) {
           File media = new File(mediaVideoPath);
           Uri fileUri = FileProvider.getUriForFile(getReactApplicationContext(), getReactApplicationContext().getPackageName() + ".fileprovider", media);
           intent.setDataAndType(fileUri, "video/*");
@@ -140,12 +176,12 @@ public class MetaShareModule extends ReactContextBaseJavaModule implements Activ
           getCurrentActivity().grantUriPermission("com.instagram.android", fileUri,
             Intent.FLAG_GRANT_READ_URI_PERMISSION);
         }
-        if( data.getString("stickerImageAsset") != null){
+        if (data.getString("stickerImageAsset") != null) {
           File media = new File(mediaPath);
           Uri fileUri = FileProvider.getUriForFile(getReactApplicationContext(), getReactApplicationContext().getPackageName() + ".fileprovider", media);
-         if(!data.hasKey("backgroundImageAsset") && !data.hasKey("backgroundVideoAsset")){
-           intent.setType("image/*");
-         }
+          if (!data.hasKey("backgroundImageAsset") && !data.hasKey("backgroundVideoAsset")) {
+            intent.setType("image/*");
+          }
 
           intent.putExtra("interactive_asset_uri", fileUri);
           getCurrentActivity().grantUriPermission("com.instagram.android", fileUri,
@@ -157,21 +193,19 @@ public class MetaShareModule extends ReactContextBaseJavaModule implements Activ
     });
     String[] downloadArray = new String[4];
 
-    if(data.hasKey("stickerImageAsset")){
-     downloadArray[0] = data.getString("stickerImageAsset");
-     downloadArray[1] = mediaPath;
+    if (data.hasKey("stickerImageAsset")) {
+      downloadArray[0] = data.getString("stickerImageAsset");
+      downloadArray[1] = mediaPath;
     }
-    if( data.hasKey("backgroundImageAsset")){
+    if (data.hasKey("backgroundImageAsset")) {
       downloadArray[2] = data.getString("backgroundImageAsset");
       downloadArray[3] = mediaPath2;
     }
-    if( data.hasKey("backgroundVideoAsset")){
+    if (data.hasKey("backgroundVideoAsset")) {
       downloadArray[2] = data.getString("backgroundVideoAsset");
       downloadArray[3] = mediaVideoPath;
     }
     downloader.execute(downloadArray);
-
-
 
 
 // Attach your App ID to the intent
@@ -192,8 +226,9 @@ public class MetaShareModule extends ReactContextBaseJavaModule implements Activ
 //      activity.startActivityForResult(intent, 0);
 //    }
   }
+
   @ReactMethod
-  public void shareVideo(String videoURI, Promise promise){
+  public void shareVideo(String videoURI, Promise promise) {
     FileDownloader downloader = new FileDownloader();
     String fileName = "/temp_1.mp4";
     String mediaPath = getReactApplicationContext().getCacheDir() + fileName;
@@ -202,9 +237,9 @@ public class MetaShareModule extends ReactContextBaseJavaModule implements Activ
       public void onAllDownloadsDone(List<Boolean> results) {
         File media = new File(getReactApplicationContext().getCacheDir(), fileName);
         Uri fileUri = FileProvider.getUriForFile(getReactApplicationContext(), getReactApplicationContext().getPackageName() + ".fileprovider", media);
-          ShareVideo video = new ShareVideo.Builder()
-            .setLocalUrl(fileUri)
-            .build();
+        ShareVideo video = new ShareVideo.Builder()
+          .setLocalUrl(fileUri)
+          .build();
         ShareVideoContent content = new ShareVideoContent.Builder()
           .setVideo(video)
           .build();
@@ -239,74 +274,75 @@ public class MetaShareModule extends ReactContextBaseJavaModule implements Activ
         });
       }
     });
-    downloader.execute(videoURI,mediaPath);
+    downloader.execute(videoURI, mediaPath);
 
   }
 
-@ReactMethod
-  public void sharePhotos(ReadableArray photos, Promise promise){
-  FileDownloader downloader = new FileDownloader();
+  @ReactMethod
+  public void sharePhotos(ReadableArray photos, Promise promise) {
+    FileDownloader downloader = new FileDownloader();
 
-  downloader.setAllDownloadsDoneCallback(new FileDownloader.AllDownloadsDoneCallback() {
-    @Override
-    public void onAllDownloadsDone(List<Boolean> results) {
-      List<SharePhoto> sharePhotos = new ArrayList<>();
-      for (int i = 0; i < photos.size(); i++) {
-        File media = new File(getReactApplicationContext().getCacheDir(), "temp_"+i+".jpg");
-        Uri fileUri = FileProvider.getUriForFile(getReactApplicationContext(), getReactApplicationContext().getPackageName() + ".fileprovider", media);
-        FacebookSdk.sdkInitialize(getReactApplicationContext());
-        SharePhoto photo = new SharePhoto.Builder()
-          .setImageUrl(fileUri)
-          .build();
-        sharePhotos.add(photo);
-      }
-      SharePhotoContent content = new SharePhotoContent.Builder()
-        .addPhotos(sharePhotos)
-        .build();
-      UiThreadUtil.runOnUiThread(new Runnable() {
-        @Override
-        public void run() {
-          CallbackManager callbackManager = CallbackManager.Factory.create();
-          ShareDialog shareDialog = new ShareDialog(getReactApplicationContext().getCurrentActivity());
-          String TAG = "facebook";
-          shareDialog.registerCallback(callbackManager, new FacebookCallback<Sharer.Result>() {
-            @Override
-            public void onSuccess(Sharer.Result result) {
-              // sharing was successful
-              Log.d(TAG, "Share successful: " + result.getPostId());
-              WritableMap map = new WritableNativeMap();
-              map.putString("postId",result.getPostId());
-              promise.resolve(map);
-            }
-
-            @Override
-            public void onCancel() {
-              // sharing was cancelled
-              promise.reject("onCancel","Share cancelled");
-              Log.d(TAG, "Share cancelled");
-            }
-
-            @Override
-            public void onError(FacebookException error) {
-              // an error occurred while sharing
-              promise.reject("error",error.getMessage());
-              Log.e(TAG, "Error sharing: " + error.getMessage(), error);
-            }
-          });
-          shareDialog.show(content, ShareDialog.Mode.AUTOMATIC);
-
+    downloader.setAllDownloadsDoneCallback(new FileDownloader.AllDownloadsDoneCallback() {
+      @Override
+      public void onAllDownloadsDone(List<Boolean> results) {
+        List<SharePhoto> sharePhotos = new ArrayList<>();
+        for (int i = 0; i < photos.size(); i++) {
+          File media = new File(getReactApplicationContext().getCacheDir(), "temp_" + i + ".jpg");
+          Uri fileUri = FileProvider.getUriForFile(getReactApplicationContext(), getReactApplicationContext().getPackageName() + ".fileprovider", media);
+          FacebookSdk.sdkInitialize(getReactApplicationContext());
+          SharePhoto photo = new SharePhoto.Builder()
+            .setImageUrl(fileUri)
+            .build();
+          sharePhotos.add(photo);
         }
-      });
+        SharePhotoContent content = new SharePhotoContent.Builder()
+          .addPhotos(sharePhotos)
+          .build();
+        UiThreadUtil.runOnUiThread(new Runnable() {
+          @Override
+          public void run() {
+            CallbackManager callbackManager = CallbackManager.Factory.create();
+            ShareDialog shareDialog = new ShareDialog(getReactApplicationContext().getCurrentActivity());
+            String TAG = "facebook";
+            shareDialog.registerCallback(callbackManager, new FacebookCallback<Sharer.Result>() {
+              @Override
+              public void onSuccess(Sharer.Result result) {
+                // sharing was successful
+                Log.d(TAG, "Share successful: " + result.getPostId());
+                WritableMap map = new WritableNativeMap();
+                map.putString("postId", result.getPostId());
+                promise.resolve(map);
+              }
+
+              @Override
+              public void onCancel() {
+                // sharing was cancelled
+                promise.reject("onCancel", "Share cancelled");
+                Log.d(TAG, "Share cancelled");
+              }
+
+              @Override
+              public void onError(FacebookException error) {
+                // an error occurred while sharing
+                promise.reject("error", error.getMessage());
+                Log.e(TAG, "Error sharing: " + error.getMessage(), error);
+              }
+            });
+            shareDialog.show(content, ShareDialog.Mode.AUTOMATIC);
+
+          }
+        });
+      }
+    });
+    String[] requestUri = new String[photos.size() * 2];
+    for (int i = 0; i < photos.size(); i++) {
+      String element = photos.getString(i);
+      String mediaPath = getReactApplicationContext().getCacheDir() + "/temp_" + i + ".jpg";
+      requestUri[i * 2] = element;
+      requestUri[i * 2 + 1] = mediaPath;
     }
-  });
-  String[] requestUri = new String[photos.size()*2];
-  for (int i = 0; i < photos.size(); i++) {
-    String element = photos.getString(i);
-    String mediaPath = getReactApplicationContext().getCacheDir() + "/temp_"+i+".jpg";
-    requestUri[i*2] = element;
-    requestUri[i*2+1] = mediaPath;
-  };
-  downloader.execute(requestUri);
+    ;
+    downloader.execute(requestUri);
 
   }
 
