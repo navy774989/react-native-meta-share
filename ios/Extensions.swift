@@ -9,34 +9,46 @@ import Foundation
 import Photos
 import FBSDKShareKit
 extension MetaShare{
-    func downloadFile(url: URL, toFile file: URL, completion: @escaping (Error?) -> Void) {
-        let task = URLSession.shared.downloadTask(with: url) {
-            (tempURL, response, error) in
-            guard let tempURL = tempURL else {
-                completion(error)
-                return
-            }
-            do {
-                if FileManager.default.fileExists(atPath: file.path) {
-                    try FileManager.default.removeItem(at: file)
-                }
-                try FileManager.default.copyItem(
-                    at: tempURL,
-                    to: file
-                )
-                
-                completion(nil)
-            }
-            
-            catch _ {
-                completion(error)
-            }
-        }
-        
-        // Start the download
-        task.resume()
-    }
-    
+	func downloadFile(url: URL, toFile file: URL, completion: @escaping (Result<URL, Error>) -> Void) {
+		let task = URLSession.shared.downloadTask(with: url) { (tempURL, response, error) in
+			guard let tempURL = tempURL else {
+				completion(.failure(error ?? NSError(domain: "", code: 0, userInfo: nil)))
+				return
+			}
+			
+			do {
+				if FileManager.default.fileExists(atPath: file.path) {
+					try FileManager.default.removeItem(at: file)
+				}
+				try FileManager.default.copyItem(at: tempURL, to: file)
+				
+				completion(.success(tempURL))
+			} catch {
+				completion(.failure(error))
+			}
+		}
+		
+		task.resume()
+	}
+	func downloadFileWithoutPath(from url: URL, completion: @escaping (URL?, Error?) -> Void) {
+		let task = URLSession.shared.downloadTask(with: url) { (localURL, response, error) in
+			if let error = error {
+				completion(nil, error)
+			} else if let localURL = localURL {
+				let destinationURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent(url.lastPathComponent)
+				do {
+					try FileManager.default.moveItem(at: localURL, to: destinationURL)
+					completion(destinationURL, nil)
+				} catch {
+					completion(nil, error)
+				}
+			} else {
+				completion(nil, NSError(domain: "Unknown error", code: -1, userInfo: nil))
+			}
+		}
+		
+		task.resume()
+	}
     func downloadVideoAndSaveToPhotosLibrary(from url: URL, completion: @escaping (Result<PHAsset, Error>) -> Void) {
         let configuration = URLSessionConfiguration.default
         configuration.timeoutIntervalForRequest = 60.0

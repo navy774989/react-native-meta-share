@@ -39,25 +39,30 @@ class MetaShare: NSObject, SharingDelegate, UIImagePickerControllerDelegate, UIN
             let filePath = NSTemporaryDirectory().appending("temp_\(index).jpg")
             let photoURL = URL(string: photo as! String)!
             downloadGroup.enter()
-            downloadFile(url: photoURL, toFile: URL(fileURLWithPath:filePath )) { error in
-                if(error != nil) {
-                    reject("error",error?.localizedDescription, error)
-                    return
-                }
-                
-                let image = UIImage(contentsOfFile: filePath)
-                let photo = SharePhoto(
-                    image: image!,
-                    isUserGenerated: true
-                )
-                photoContent.append(photo)
-                downloadGroup.leave()
-            }
+			downloadFile(url: photoURL, toFile:  URL(fileURLWithPath:filePath )) { result in
+				
+				switch result {
+					case .success(let fileURL):
+						
+						let image = UIImage(contentsOfFile: filePath)
+						let photo = SharePhoto(
+							image: image!,
+							userGenerated: true
+						)
+						photoContent.append(photo)
+						downloadGroup.leave()
+						break
+					case .failure(let error):
+						reject("error",error.localizedDescription, error)
+						break
+				}
+
+			}
         }
         downloadGroup.notify(queue: .main){
             shareContent.photos = photoContent
             let dialog = ShareDialog(
-                viewController: RCTPresentedViewController()!,
+				fromViewController: RCTPresentedViewController()!,
                 content: shareContent,
                 delegate: self
             )
@@ -78,7 +83,7 @@ class MetaShare: NSObject, SharingDelegate, UIImagePickerControllerDelegate, UIN
 				
                 shareContent.video = videoAsset
                 let dialog = ShareDialog(
-                    viewController: RCTPresentedViewController()!,
+					fromViewController: RCTPresentedViewController()!,
                     content: shareContent,
                     delegate: self
                 )
@@ -120,14 +125,18 @@ class MetaShare: NSObject, SharingDelegate, UIImagePickerControllerDelegate, UIN
 		
 		if(imageURI != "" && imageURI != nil ){
 			downloadGroup.enter()
-			downloadFile(url: URL(string: imageURI!)!, toFile: URL(string: filePath)!, completion:{ error in
-				if(error != nil){
-					reject("download fail",error?.localizedDescription,nil)
-					return
+			downloadFile(url: URL(string: imageURI!)!, toFile: URL(string: filePath)!, completion:{ result in
+				
+				switch result {
+					case .success(let fileURL):
+						let backgroundImage = UIImage(contentsOfFile: filePath)
+						pasteboardItems["com.facebook.sharedSticker.stickerImage"] = backgroundImage?.pngData()
+						downloadGroup.leave()
+					case .failure(let error):
+						reject("download fail",error.localizedDescription,nil)
+						break
 				}
-				let backgroundImage = UIImage(contentsOfFile: filePath)
-				pasteboardItems["com.facebook.sharedSticker.stickerImage"] = backgroundImage?.pngData()
-				downloadGroup.leave()
+
 			})
 		}
 		if(videoURI != ""){
@@ -192,14 +201,18 @@ class MetaShare: NSObject, SharingDelegate, UIImagePickerControllerDelegate, UIN
         if((data["backgroundImageAsset"]) != nil){
             let filePath = NSTemporaryDirectory().appending("temp_0.jpg")
             downloadGroup.enter()
-            downloadFile(url: URL(string: data["backgroundImageAsset"] as! String)!, toFile: URL(string: filePath)!, completion:{ error in
-                if(error != nil){
-                    reject("download fail",error?.localizedDescription,nil)
-                    return
-                }
-                let backgroundImage = UIImage(contentsOfFile: filePath)
-                pasteboardItems["com.instagram.sharedSticker.backgroundImage"] = backgroundImage?.pngData()
-                downloadGroup.leave()
+            downloadFile(url: URL(string: data["backgroundImageAsset"] as! String)!, toFile: URL(string: filePath)!, completion:{ result in
+				
+				switch result {
+					case .success(let fileURL):
+						let backgroundImage = UIImage(contentsOfFile: filePath)
+						pasteboardItems["com.instagram.sharedSticker.backgroundImage"] = backgroundImage?.pngData()
+						downloadGroup.leave()
+					case .failure(let error):
+						reject("download fail",error.localizedDescription,nil)
+						break
+				}
+
             })
         }
         if((data["backgroundVideoAsset"]) != nil){
@@ -245,14 +258,17 @@ class MetaShare: NSObject, SharingDelegate, UIImagePickerControllerDelegate, UIN
         if((data["stickerImageAsset"]) != nil){
             let filePath = NSTemporaryDirectory().appending("temp_1.jpg")
             downloadGroup.enter()
-            downloadFile(url: URL(string: data["stickerImageAsset"] as! String)!, toFile: URL(string: filePath)!, completion:{ error in
-                if(error != nil){
-                    reject("download fail",error?.localizedDescription,nil)
-                    return
-                }
-                let backgroundImage = UIImage(contentsOfFile: filePath)
-                pasteboardItems["com.instagram.sharedSticker.stickerImage"] = backgroundImage?.pngData()
-                downloadGroup.leave()
+            downloadFile(url: URL(string: data["stickerImageAsset"] as! String)!, toFile: URL(string: filePath)!, completion:{ result in
+				switch result {
+					case .success(let fileURL):
+						let backgroundImage = UIImage(contentsOfFile: filePath)
+						pasteboardItems["com.instagram.sharedSticker.stickerImage"] = backgroundImage?.pngData()
+						downloadGroup.leave()
+					case .failure(let error):
+						reject("download fail",error.localizedDescription,nil)
+						break
+				}
+
             })
         }
         
@@ -285,35 +301,42 @@ class MetaShare: NSObject, SharingDelegate, UIImagePickerControllerDelegate, UIN
     
     @objc(shareImageToInstagram:withResolver:withRejecter:)
     func shareImageToInstagram(imageURI: NSString, resolve: @escaping RCTPromiseResolveBlock,  reject: @escaping RCTPromiseRejectBlock) -> Void {
-        let imageURL = URL(string: imageURI as String)!
         let filePath = NSTemporaryDirectory().appending("temp_0.jpg")
         let photoURL = URL(string: imageURI as String)!
         var assetPlaceholder: PHObjectPlaceholder?
-        downloadFile(url: photoURL, toFile: URL(string: filePath)!) { error in
-            PHPhotoLibrary.shared().performChanges({
-                let request = PHAssetChangeRequest.creationRequestForAssetFromImage(atFileURL:  URL(string: filePath)!)
-                assetPlaceholder = request?.placeholderForCreatedAsset
-            }) { success, error in
-                if success {
-                    if let assetPlaceholder = assetPlaceholder {
-                        let assets = PHAsset.fetchAssets(withLocalIdentifiers: [assetPlaceholder.localIdentifier], options: nil)
-                        if let asset = assets.firstObject {
-                            let assetUrl = URL(string: "instagram://library?LocalIdentifier=" + asset.localIdentifier)!
-                            if UIApplication.shared.canOpenURL(assetUrl) {
-                                UIApplication.shared.open(assetUrl, options: [:], completionHandler:nil)
-                            }
-                            resolve("")
-                        } else {
-                            reject("error", NSError(domain: "react-native-meta-share", code: 0, userInfo: [NSLocalizedDescriptionKey: "Could not fetch saved asset"]).localizedDescription,nil)
-                        }
-                    } else {
-                        reject("error", NSError(domain: "react-native-meta-share", code: 0, userInfo: [NSLocalizedDescriptionKey: "Could not get asset placeholder"]).localizedDescription,nil)
-                    }
-                } else {
-                    reject("error","Error saving image to Photos library: \(error)",nil)
-                }
-            }
-        }
+		downloadFileWithoutPath(from: photoURL) { (localURL, error) in
+			if(localURL == nil){
+				reject("error", NSError(domain: "react-native-meta-share", code: 0, userInfo: [NSLocalizedDescriptionKey: "Could not get localURL"]).localizedDescription,nil)
+				return
+			}
+			PHPhotoLibrary.shared().performChanges({
+				let request = PHAssetChangeRequest.creationRequestForAssetFromImage(atFileURL: localURL!)
+				assetPlaceholder = request?.placeholderForCreatedAsset
+			}) { success, error in
+				if success {
+					if let assetPlaceholder = assetPlaceholder {
+						let assets = PHAsset.fetchAssets(withLocalIdentifiers: [assetPlaceholder.localIdentifier], options: nil)
+						if let asset = assets.firstObject {
+							let assetUrl = URL(string: "instagram://library?LocalIdentifier=" + asset.localIdentifier)!
+							if UIApplication.shared.canOpenURL(assetUrl) {
+								DispatchQueue.main.async {
+									UIApplication.shared.open(assetUrl, options: [:], completionHandler:nil)
+								}
+
+							}
+							resolve("")
+						} else {
+							reject("error", NSError(domain: "react-native-meta-share", code: 0, userInfo: [NSLocalizedDescriptionKey: "Could not fetch saved asset"]).localizedDescription,nil)
+						}
+					} else {
+						reject("error", NSError(domain: "react-native-meta-share", code: 0, userInfo: [NSLocalizedDescriptionKey: "Could not get asset placeholder"]).localizedDescription,nil)
+					}
+				} else {
+					reject("error","Error saving image to Photos library: \(error)",nil)
+				}
+			}
+		}
+
     }
     
     

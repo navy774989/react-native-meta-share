@@ -16,7 +16,6 @@ const MetaShare = NativeModules.MetaShare
         },
       }
     );
-
 export function sharePhotosToFacebook(imageURIs: string[]): Promise<string[]> {
   return MetaShare.sharePhotos(imageURIs);
 }

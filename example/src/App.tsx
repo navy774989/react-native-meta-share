@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { StyleSheet, View, Text, Pressable } from 'react-native';
+import { StyleSheet, View, Text, Pressable, Platform } from 'react-native';
 import {
   sharePhotosToFacebook,
   shareVideoToFacebook,
@@ -56,16 +56,19 @@ export default function App() {
       >
         <Text>Share Photos To Facebook</Text>
       </Pressable>
-      <Pressable
-        onPress={() => {
-          shareVideoToFacebook(
-            'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4'
-          );
-        }}
-        style={styles.box}
-      >
-        <Text>Share Video To Facebook</Text>
-      </Pressable>
+      {Platform.OS === 'android' && (
+        <Pressable
+          onPress={() => {
+            shareVideoToFacebook(
+              'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4'
+            );
+          }}
+          style={styles.box}
+        >
+          <Text>Share Video To Facebook</Text>
+        </Pressable>
+      )}
+
       <Pressable
         onPress={() => {
           shareVideoToInstagram(
