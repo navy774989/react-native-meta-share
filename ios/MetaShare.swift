@@ -199,21 +199,16 @@ class MetaShare: NSObject, SharingDelegate, UIImagePickerControllerDelegate, UIN
         var pasteboardItems: [String: Any] = [:]
         let downloadGroup = DispatchGroup()
         if((data["backgroundImageAsset"]) != nil){
-            let filePath = NSTemporaryDirectory().appending("temp_0.jpg")
             downloadGroup.enter()
-            downloadFile(url: URL(string: data["backgroundImageAsset"] as! String)!, toFile: URL(string: filePath)!, completion:{ result in
-				
-				switch result {
-					case .success(let fileURL):
-						let backgroundImage = UIImage(contentsOfFile: filePath)
-						pasteboardItems["com.instagram.sharedSticker.backgroundImage"] = backgroundImage?.pngData()
-						downloadGroup.leave()
-					case .failure(let error):
-						reject("download fail",error.localizedDescription,nil)
-						break
+			downloadFileWithoutPath(from: URL(string: data["backgroundImageAsset"] as! String)!) { (url,error)  in
+				if(url != nil){
+					let backgroundImage = UIImage(contentsOfFile: url!.path)
+					pasteboardItems["com.instagram.sharedSticker.backgroundImage"] = backgroundImage?.pngData()
+					downloadGroup.leave()
+				}else{
+					reject("download fail",error?.localizedDescription,nil)
 				}
-
-            })
+			}
         }
         if((data["backgroundVideoAsset"]) != nil){
             downloadGroup.enter()

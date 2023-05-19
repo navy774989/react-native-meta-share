@@ -31,11 +31,23 @@ extension MetaShare{
 		task.resume()
 	}
 	func downloadFileWithoutPath(from url: URL, completion: @escaping (URL?, Error?) -> Void) {
+		let destinationURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent(url.lastPathComponent)
+		
+		if FileManager.default.fileExists(atPath: destinationURL.path) {
+				// File with the same name already exists, generate a unique name
+			let uniqueName = UUID().uuidString
+			let uniqueURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent(uniqueName)
+			downloadFile(from: url, to: uniqueURL, completion: completion)
+		} else {
+			downloadFile(from: url, to: destinationURL, completion: completion)
+		}
+	}
+	
+	private func downloadFile(from url: URL, to destinationURL: URL, completion: @escaping (URL?, Error?) -> Void) {
 		let task = URLSession.shared.downloadTask(with: url) { (localURL, response, error) in
 			if let error = error {
 				completion(nil, error)
 			} else if let localURL = localURL {
-				let destinationURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!.appendingPathComponent(url.lastPathComponent)
 				do {
 					try FileManager.default.moveItem(at: localURL, to: destinationURL)
 					completion(destinationURL, nil)
@@ -49,6 +61,8 @@ extension MetaShare{
 		
 		task.resume()
 	}
+		
+
     func downloadVideoAndSaveToPhotosLibrary(from url: URL, completion: @escaping (Result<PHAsset, Error>) -> Void) {
         let configuration = URLSessionConfiguration.default
         configuration.timeoutIntervalForRequest = 60.0
